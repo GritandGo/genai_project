@@ -1,6 +1,8 @@
+import sys
 import os
 from dotenv import load_dotenv
 from google import genai
+from google.genai import types
 
 
 load_dotenv()
@@ -12,13 +14,36 @@ def main():
     print("Hello from genai-project!")
 
 
+    if len(sys.argv) < 2:
+        print("Error - Please provide a prompt")
+        sys.exit(1)
+
+
+    if "--verbose" in sys.argv:
+        verbose_flag_postion = sys.argv.index("--verbose")
+        user_prompt = " ".join(sys.argv[1:verbose_flag_postion])
+    else:
+        user_prompt = " ".join(sys.argv[1:])
+
+    messages = [
+        types.Content(role="user", parts=[types.Part(text=user_prompt)]),
+    ]
+
+
     response = client.models.generate_content(
         model="gemini-2.0-flash-001",
-        contents="Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum.",
+        contents=messages,
     )
-        # Print token usage
-    print("Prompt tokens:", response.usage_metadata.prompt_token_count)
-    print("Response tokens:", response.usage_metadata.candidates_token_count)
+        
+    prompt_tokens = response.usage_metadata.prompt_token_count
+    response_tokens = response.usage_metadata.candidates_token_count
+
+
+    if "--verbose" in sys.argv:
+        print(f"User prompt: {user_prompt}")
+        print(f"Prompt tokens: {prompt_tokens}")
+        print(f"Response tokens: {response_tokens}")
+    
 
     # Print the actual response
     print(response.text)
