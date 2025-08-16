@@ -14,11 +14,12 @@ def get_files_info(working_directory, directory="."):
         list_of_item_names = os.listdir(full_path)
         new_list = []
         for name in list_of_item_names:
-            full_name = os.path.join(full_path, name)
-            size = os.path.getsize(full_name)
-            is_dir = os.path.isdir(full_name)
-            formatted_string = f"-{name}: file_size={size} bytes, is_dir={is_dir}"
-            new_list.append(formatted_string)
+            if name != "__pycache__":
+                full_name = os.path.join(full_path, name)
+                size = os.path.getsize(full_name)
+                is_dir = os.path.isdir(full_name)
+                formatted_string = f"- {name}: file_size={size} bytes, is_dir={is_dir}"
+                new_list.append(formatted_string)
             
 
         return "\n".join(new_list)
