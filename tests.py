@@ -1,16 +1,24 @@
-from functions.write_file import write_file
+from functions.run_python_file import run_python_file
 
 
-result1 = write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum")
+result1 = run_python_file("calculator", "main.py")
 print(f"Result for current file:\n{result1}")
 
 
-result2 = write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet")
+result2 = run_python_file("calculator", "main.py", ["3 + 5"])
 print(f"Result for current file:\n{result2}")
 
 
-result3 = write_file("calculator", "/tmp/temp.txt", "this should not be allowed")
+result3 = run_python_file("calculator", "tests.py")
 print(f"Result for current file:\n{result3}")
+
+
+result4 = run_python_file("calculator", "../main.py")
+print(f"Result for current file:\n{result4}")
+
+
+result5 = run_python_file("calculator", "nonexistent.py")
+print(f"Result for current file:\n{result5}")
 
 
 
