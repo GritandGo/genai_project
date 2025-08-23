@@ -5,6 +5,7 @@ from google import genai
 from google.genai import types
 from google.genai.types import GenerateContentConfig
 from call_function import available_functions
+from call_function import call_function
 
 load_dotenv()
 api_key = os.environ.get("GEMINI_API_KEY")
@@ -14,13 +15,14 @@ client = genai.Client(api_key=api_key)
 def main():
     print("Hello from genai-project!")
 
+    verbose = "--verbose" in sys.argv
 
     if len(sys.argv) < 2:
         print("Error - Please provide a prompt")
         sys.exit(1)
 
 
-    if "--verbose" in sys.argv:
+    if verbose:
         verbose_flag_postion = sys.argv.index("--verbose")
         user_prompt = " ".join(sys.argv[1:verbose_flag_postion])
     else:
@@ -58,18 +60,29 @@ All paths you provide should be relative to the working directory. You do not ne
     response_tokens = response.usage_metadata.candidates_token_count
 
 
-    if "--verbose" in sys.argv:
+    if verbose:
         print(f"User prompt: {user_prompt}")
         print(f"Prompt tokens: {prompt_tokens}")
         print(f"Response tokens: {response_tokens}")
     
 
-    # Print the actual response
     if not response.function_calls:
         print(response.text)
     else:
         for function_call_part in response.function_calls:
-             print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+            function_call_result = call_function(function_call_part, verbose=verbose)
+
+
+            function_response = getattr(
+                function_call_result.parts[0], 
+                "function_response", 
+                None
+            )
+            if not function_response or not hasattr(function_response, "response"):
+                raise Exception("Function did not return a valid response.")
+
+            if verbose:
+                print(f"-> {function_response.response}")
 
 
 if __name__ == "__main__":
